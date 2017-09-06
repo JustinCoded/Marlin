@@ -23,9 +23,11 @@
 #ifndef ULTRALCD_H
 #define ULTRALCD_H
 
-#include "Marlin.h"
+#include "../inc/MarlinConfig.h"
 
 #if ENABLED(ULTRA_LCD)
+
+  #include "../Marlin.h"
 
   #define BUTTON_EXISTS(BN) (defined(BTN_## BN) && BTN_## BN >= 0)
   #define BUTTON_PRESSED(BN) !READ(BTN_## BN)
@@ -74,6 +76,8 @@
 
   #if ENABLED(ULTIPANEL)
 
+    void lcd_goto_screen(screenFunc_t screen, const uint32_t encoder=0);
+
     #define BLEN_A 0
     #define BLEN_B 1
     // Encoder click is directly connected
@@ -91,7 +95,7 @@
 
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
       void lcd_advanced_pause_show_message(const AdvancedPauseMessage message);
-    #endif // ADVANCED_PAUSE_FEATURE
+    #endif
 
   #else
 
