@@ -136,7 +136,7 @@ void tmc2130_checkOverTemp(void) {
  * spreadCycle and stealthChop are mutually exclusive.
  */
 #if ENABLED(SENSORLESS_HOMING)
-  void tmc2130_sensorless_homing(TMC2130Stepper &st, bool enable=true) {
+  void tmc2130_sensorless_homing(TMC2130Stepper &st, bool enable/*=true*/) {
     #if ENABLED(STEALTHCHOP)
       if (enable) {
         st.coolstep_min_speed(1024UL * 1024UL - 1UL);

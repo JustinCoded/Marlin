@@ -21,6 +21,20 @@
  */
 
 /**
+ * M421-mbl.cpp - Mesh Bed Leveling
+ */
+
+#include "../../inc/MarlinConfig.h"
+
+#if ENABLED(MESH_BED_LEVELING)
+
+#include "../gcode.h"
+
+#include "../../module/motion.h"
+#include "../../core/serial.h"
+#include "../../feature/bedlevel/bedlevel.h"
+
+/**
  * M421: Set a single Mesh Bed Leveling Z coordinate
  *
  * Usage:
@@ -29,7 +43,7 @@
  *   M421 I<xindex> J<yindex> Z<linear>
  *   M421 I<xindex> J<yindex> Q<offset>
  */
-void gcode_M421() {
+void GcodeSuite::M421() {
   const bool hasX = parser.seen('X'), hasI = parser.seen('I');
   const int8_t ix = hasI ? parser.value_int() : hasX ? mbl.probe_index_x(RAW_X_POSITION(parser.value_linear_units())) : -1;
   const bool hasY = parser.seen('Y'), hasJ = parser.seen('J');
@@ -47,3 +61,5 @@ void gcode_M421() {
   else
     mbl.set_z(ix, iy, parser.value_linear_units() + (hasQ ? mbl.z_values[ix][iy] : 0));
 }
+
+#endif // MESH_BED_LEVELING

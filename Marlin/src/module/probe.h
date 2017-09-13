@@ -20,7 +20,31 @@
  *
  */
 
-#ifndef CALIBRATE_COMMON_H
-#define CALIBRATE_COMMON_H
+/**
+ * probe.h - Move, deploy, enable, etc.
+ */
 
-#endif // CALIBRATE_COMMON_H
+#ifndef PROBE_H
+#define PROBE_H
+
+#include "../inc/MarlinConfig.h"
+
+bool set_probe_deployed(const bool deploy);
+float probe_pt(const float &lx, const float &ly, const bool, const uint8_t, const bool printable=true);
+
+#if HAS_BED_PROBE
+  extern float zprobe_zoffset;
+  void refresh_zprobe_zoffset(const bool no_babystep=false);
+  #define DEPLOY_PROBE() set_probe_deployed(true)
+  #define STOW_PROBE() set_probe_deployed(false)
+#else
+  #define DEPLOY_PROBE()
+  #define STOW_PROBE()
+#endif
+
+#if HAS_Z_SERVO_ENDSTOP
+  extern const int z_servo_angle[2];
+  void servo_probe_init();
+#endif
+
+#endif // PROBE_H

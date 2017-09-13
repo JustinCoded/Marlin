@@ -32,12 +32,6 @@
 
 #include "../inc/MarlinConfig.h"
 
-//#include "../HAL/HAL.h"
-
-// #if ENABLED(DELTA)
-//   #include "../module/delta.h"
-// #endif
-
 #if IS_SCARA
   #include "../module/scara.h"
 #endif
@@ -55,6 +49,15 @@ extern float cartes[XYZ];
   extern float delta[ABC];
 #endif
 
+#if OLDSCHOOL_ABL
+  extern float xy_probe_feedrate_mm_s;
+  #define XY_PROBE_FEEDRATE_MM_S xy_probe_feedrate_mm_s
+#elif defined(XY_PROBE_SPEED)
+  #define XY_PROBE_FEEDRATE_MM_S MMM_TO_MMS(XY_PROBE_SPEED)
+#else
+  #define XY_PROBE_FEEDRATE_MM_S PLANNER_XY_FEEDRATE()
+#endif
+
 /**
  * Feed rates are often configured with mm/m
  * but the planner and stepper like mm/s units.
@@ -65,6 +68,10 @@ FORCE_INLINE float homing_feedrate(const AxisEnum a) { return pgm_read_float(&ho
 extern float feedrate_mm_s;
 
 extern uint8_t active_extruder;
+
+#if HOTENDS > 1
+  extern float hotend_offset[XYZ][HOTENDS];
+#endif
 
 extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
 
@@ -91,8 +98,13 @@ XYZ_DEFS(signed char, home_dir, HOME_DIR);
   #define clamp_to_software_endstops(x) NOOP
 #endif
 
+void report_current_position();
+
 inline void set_current_to_destination() { COPY(current_position, destination); }
 inline void set_destination_to_current() { COPY(destination, current_position); }
+
+void get_cartesian_from_steppers();
+void set_current_from_steppers_for_axis(const AxisEnum axis);
 
 /**
  * sync_plan_position
@@ -130,7 +142,29 @@ inline void line_to_destination() { line_to_destination(feedrate_mm_s); }
 
 void prepare_move_to_destination();
 
-void clamp_to_software_endstops(float target[XYZ]);
+#define NEED_UNHOMED_ERR (HAS_PROBING_PROCEDURE || HOTENDS > 1 || ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED) || ENABLED(NOZZLE_CLEAN_FEATURE) || ENABLED(NOZZLE_PARK_FEATURE) || ENABLED(DELTA_AUTO_CALIBRATION))
+
+#if NEED_UNHOMED_ERR
+  bool axis_unhomed_error(const bool x=true, const bool y=true, const bool z=true);
+#endif
+
+/**
+ * Blocking movement and shorthand functions
+ */
+void do_blocking_move_to(const float &x, const float &y, const float &z, const float &fr_mm_s=0.0);
+void do_blocking_move_to_x(const float &x, const float &fr_mm_s=0.0);
+void do_blocking_move_to_z(const float &z, const float &fr_mm_s=0.0);
+void do_blocking_move_to_xy(const float &x, const float &y, const float &fr_mm_s=0.0);
+
+void homeaxis(const AxisEnum axis);
+#define HOMEAXIS(LETTER) homeaxis(LETTER##_AXIS)
+
+void setup_for_endstop_or_probe_move();
+void clean_up_after_endstop_or_probe_move();
+
+void bracket_probe_move(const bool before);
+void setup_for_endstop_or_probe_move();
+void clean_up_after_endstop_or_probe_move();
 
 //
 // Macros

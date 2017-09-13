@@ -37,6 +37,21 @@
   #endif
 #endif
 
+#if ENABLED(PROBE_MANUALLY)
+  extern bool g29_in_progress;
+#else
+  constexpr bool g29_in_progress = false;
+#endif
+
+bool leveling_is_valid();
+bool leveling_is_active();
+void set_bed_leveling_enabled(const bool enable=true);
+void reset_bed_level();
+
+#if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+  void set_z_fade_height(const float zfh);
+#endif
+
 #if ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(MESH_BED_LEVELING)
 
   #include <stdint.h>
@@ -48,6 +63,14 @@
    */
   void print_2d_array(const uint8_t sx, const uint8_t sy, const uint8_t precision, element_2d_fn fn);
 
+#endif
+
+#if ENABLED(MESH_BED_LEVELING) || ENABLED(PROBE_MANUALLY)
+  void _manual_goto_xy(const float &x, const float &y);
+#endif
+
+#if HAS_PROBING_PROCEDURE
+  void out_of_range_error(const char* p_edge);
 #endif
 
 #endif // __BEDLEVEL_H__

@@ -20,7 +20,12 @@
  *
  */
 
+#include "../../inc/MarlinConfig.h"
+
+#if HOTENDS > 1
+
 #include "../gcode.h"
+#include "../../module/motion.h"
 #include "../../core/serial.h"
 
 /**
@@ -31,7 +36,7 @@
  *   Y<yoffset>
  *   Z<zoffset> - Available with DUAL_X_CARRIAGE and SWITCHING_NOZZLE
  */
-void gcode_M218() {
+void GcodeSuite::M218() {
   if (gcode.get_target_extruder_from_command() || gcode.target_extruder == 0) return;
 
   if (parser.seenval('X')) hotend_offset[X_AXIS][gcode.target_extruder] = parser.value_linear_units();
@@ -55,3 +60,5 @@ void gcode_M218() {
   }
   SERIAL_EOL();
 }
+
+#endif // HOTENDS > 1

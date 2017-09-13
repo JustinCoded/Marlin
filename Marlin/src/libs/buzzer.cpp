@@ -20,8 +20,14 @@
  *
  */
 
-void gcode_M49() {
-  ubl.g26_debug_flag ^= true;
-  SERIAL_PROTOCOLPGM("UBL Debug Flag turned ");
-  serialprintPGM(ubl.g26_debug_flag ? PSTR("on.") : PSTR("off."));
-}
+#include "../inc/MarlinConfig.h"
+
+#if DISABLED(LCD_USE_I2C_BUZZER) && PIN_EXISTS(BEEPER)
+
+#include "buzzer.h"
+
+Buzzer::state_t Buzzer::state;
+CircularQueue<tone_t, TONE_QUEUE_LENGTH> Buzzer::buffer;
+Buzzer buzzer;
+
+#endif // !LCD_USE_I2C_BUZZER && BEEPER

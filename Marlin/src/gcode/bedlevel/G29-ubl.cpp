@@ -20,8 +20,18 @@
  *
  */
 
-void gcode_G26() {
+/**
+ * G29-ubl.cpp - Unified Bed Leveling
+ */
 
-  ubl.G26();
+#include "../../inc/MarlinConfig.h"
 
-}
+#if ENABLED(AUTO_BED_LEVELING_UBL)
+
+#include "../gcode.h"
+
+#include "../../feature/bedlevel/bedlevel.h"
+
+void GcodeSuite::G29() { ubl.G29(); }
+
+#endif // AUTO_BED_LEVELING_UBL

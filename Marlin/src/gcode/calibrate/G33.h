@@ -20,12 +20,6 @@
  *
  */
 
-#include "common.h"
-
-#if HOTENDS > 1
-  #include "../control/tool_change.h"
-#endif
-
 /**
  * G33 - Delta '1-4-7-point' Auto-Calibration
  *       Calibrate height, endstops, delta radius, and tower angles.

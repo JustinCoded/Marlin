@@ -189,6 +189,10 @@ MarlinSettings settings;
   #include "../gcode/parser.h"
 #endif
 
+#if HAS_BED_PROBE
+  #include "../module/probe.h"
+#endif
+
 #if HAS_LEVELING
   #include "../feature/bedlevel/bedlevel.h"
 #endif

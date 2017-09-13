@@ -20,10 +20,22 @@
  *
  */
 
-#if ENABLED(MESH_BED_LEVELING)
-  #include "M421-mbl.h"
-#elif ENABLED(AUTO_BED_LEVELING_UBL)
-  #include "M421-ubl.h"
-#elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-  #include "M421-abl.h"
-#endif
+/**
+ * M49.cpp - Unified Bed Leveling - with G26 Mesh Validation
+ */
+
+#include "../../inc/MarlinConfig.h"
+
+#if ENABLED(UBL_G26_MESH_VALIDATION)
+
+#include "../gcode.h"
+#include "../../core/serial.h"
+#include "../../feature/bedlevel/bedlevel.h"
+
+void GcodeSuite::M49() {
+  ubl.g26_debug_flag ^= true;
+  SERIAL_PROTOCOLPGM("UBL Debug Flag turned ");
+  serialprintPGM(ubl.g26_debug_flag ? PSTR("on.") : PSTR("off."));
+}
+
+#endif // UBL_G26_MESH_VALIDATION

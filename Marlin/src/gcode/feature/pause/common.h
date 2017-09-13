@@ -20,6 +20,10 @@
  *
  */
 
+/**
+ * feature/pause/common.h - Merge this with its G-codes in the refactor
+ */
+
 #ifndef PAUSE_COMMON_H
 #define PAUSE_COMMON_H
 

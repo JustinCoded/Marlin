@@ -643,12 +643,10 @@ static_assert(1 >= 0
   /**
    * Require some kind of probe for bed leveling and probe testing
    */
-  #if HAS_ABL
-    #if ENABLED(AUTO_BED_LEVELING_UBL)
-      #error "Unified Bed Leveling requires a probe: FIX_MOUNTED_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or Z Servo."
-    #else
-      #error "Auto Bed Leveling requires one of these: PROBE_MANUALLY, FIX_MOUNTED_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or a Z Servo."
-    #endif
+  #if ENABLED(AUTO_BED_LEVELING_UBL)
+    #error "Unified Bed Leveling requires a probe: FIX_MOUNTED_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or Z Servo."
+  #elif HAS_ABL
+    #error "Auto Bed Leveling requires one of these: PROBE_MANUALLY, FIX_MOUNTED_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or a Z Servo."
   #endif
 
 #endif

@@ -20,8 +20,16 @@
  *
  */
 
-#ifndef TOOL_CHANGE_H
-#define TOOL_CHANGE_H
+#include "tool_change.h"
+
+#include "motion.h"
+#include "planner.h"
+#include "stepper.h"
+
+#include "../core/serial.h"
+#include "../Marlin.h"
+
+#include "../inc/MarlinConfig.h"
 
 #if ENABLED(SWITCHING_EXTRUDER)
 
@@ -33,7 +41,7 @@
     #define _SERVO_NR SWITCHING_EXTRUDER_SERVO_NR
   #endif
 
-  inline void move_extruder_servo(const uint8_t e) {
+  void move_extruder_servo(const uint8_t e) {
     constexpr int16_t angles[] = SWITCHING_EXTRUDER_SERVO_ANGLES;
     static_assert(COUNT(angles) == REQ_ANGLES, "SWITCHING_EXTRUDER_SERVO_ANGLES needs " STRINGIFY(REQ_ANGLES) " angles.");
     stepper.synchronize();
@@ -50,22 +58,16 @@
 
 #if ENABLED(SWITCHING_NOZZLE)
 
-  inline void move_nozzle_servo(const uint8_t e) {
+  void move_nozzle_servo(const uint8_t e) {
     const int16_t angles[2] = SWITCHING_NOZZLE_SERVO_ANGLES;
     stepper.synchronize();
     MOVE_SERVO(SWITCHING_NOZZLE_SERVO_NR, angles[e]);
     safe_delay(500);
   }
 
-#endif
+#endif // SWITCHING_NOZZLE
 
 #if ENABLED(PARKING_EXTRUDER)
-
-  #if ENABLED(PARKING_EXTRUDER_SOLENOIDS_INVERT)
-    #define PE_MAGNET_ON_STATE !PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE
-  #else
-    #define PE_MAGNET_ON_STATE PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE
-  #endif
 
   void pe_set_magnet(const uint8_t extruder_num, const uint8_t state) {
     switch (extruder_num) {
@@ -76,9 +78,6 @@
       dwell(PARKING_EXTRUDER_SOLENOIDS_DELAY);
     #endif
   }
-
-  inline void pe_activate_magnet(const uint8_t extruder_num) { pe_set_magnet(extruder_num, PE_MAGNET_ON_STATE); }
-  inline void pe_deactivate_magnet(const uint8_t extruder_num) { pe_set_magnet(extruder_num, !PE_MAGNET_ON_STATE); }
 
 #endif // PARKING_EXTRUDER
 
@@ -119,7 +118,7 @@ inline void invalid_extruder_error(const uint8_t e) {
  * Perform a tool-change, which may result in moving the
  * previous tool out of the way and the new tool into place.
  */
-void tool_change(const uint8_t tmp_extruder, const float fr_mm_s=0.0, bool no_move=false) {
+void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool no_move/*=false*/) {
   #if ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1
 
     if (tmp_extruder >= MIXING_VIRTUAL_TOOLS)
@@ -550,5 +549,3 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s=0.0, bool no_mo
 
   #endif // !MIXING_EXTRUDER || MIXING_VIRTUAL_TOOLS <= 1
 }
-
-#endif // TOOL_CHANGE_H

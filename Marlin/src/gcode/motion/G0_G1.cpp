@@ -37,7 +37,7 @@ extern float destination[XYZE];
  */
 void GcodeSuite::G0_G1(
   #if IS_SCARA
-    bool fast_move=false
+    bool fast_move/*=false*/
   #endif
 ) {
   if (IsRunning()) {

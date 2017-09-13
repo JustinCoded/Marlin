@@ -21,29 +21,32 @@
  */
 
 /**
+ * M421-abl.cpp - Auto Bed Leveling
+ */
+
+#include "../../inc/MarlinConfig.h"
+
+#if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+
+#include "../gcode.h"
+#include "../../core/serial.h"
+#include "../../feature/bedlevel/bedlevel.h"
+
+/**
  * M421: Set a single Mesh Bed Leveling Z coordinate
  *
  * Usage:
  *   M421 I<xindex> J<yindex> Z<linear>
  *   M421 I<xindex> J<yindex> Q<offset>
- *   M421 C Z<linear>
- *   M421 C Q<offset>
  */
-void gcode_M421() {
+void GcodeSuite::M421() {
   int8_t ix = parser.intval('I', -1), iy = parser.intval('J', -1);
   const bool hasI = ix >= 0,
              hasJ = iy >= 0,
-             hasC = parser.seen('C'),
              hasZ = parser.seen('Z'),
              hasQ = !hasZ && parser.seen('Q');
 
-  if (hasC) {
-    const mesh_index_pair location = ubl.find_closest_mesh_point_of_type(REAL, current_position[X_AXIS], current_position[Y_AXIS], USE_NOZZLE_AS_REFERENCE, NULL, false);
-    ix = location.x_index;
-    iy = location.y_index;
-  }
-
-  if (int(hasC) + int(hasI && hasJ) != 1 || !(hasZ || hasQ)) {
+  if (!hasI || !hasJ || !(hasZ || hasQ)) {
     SERIAL_ERROR_START();
     SERIAL_ERRORLNPGM(MSG_ERR_M421_PARAMETERS);
   }
@@ -51,6 +54,12 @@ void gcode_M421() {
     SERIAL_ERROR_START();
     SERIAL_ERRORLNPGM(MSG_ERR_MESH_XY);
   }
-  else
-    ubl.z_values[ix][iy] = parser.value_linear_units() + (hasQ ? ubl.z_values[ix][iy] : 0);
+  else {
+    z_values[ix][iy] = parser.value_linear_units() + (hasQ ? z_values[ix][iy] : 0);
+    #if ENABLED(ABL_BILINEAR_SUBDIVISION)
+      bed_level_virt_interpolate();
+    #endif
+  }
 }
+
+#endif // AUTO_BED_LEVELING_BILINEAR

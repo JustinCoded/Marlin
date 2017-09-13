@@ -58,7 +58,6 @@ enum MeshPointType { INVALID, REAL, SET_IN_BITMAP };
 
 char *ftostr43sign(const float&, char);
 bool ubl_lcd_clicked();
-void home_all_axes();
 
 extern uint8_t ubl_cnt;
 
@@ -190,6 +189,10 @@ class unified_bed_leveling {
                             };
 
     static bool g26_debug_flag, has_control_of_lcd_panel;
+
+    #if ENABLED(ULTRA_LCD)
+      static bool lcd_map_control;
+    #endif
 
     static volatile int encoder_diff; // Volatile because it's changed at interrupt time.
 

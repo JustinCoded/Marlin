@@ -165,7 +165,7 @@ class Planner {
                  max_jerk[XYZE],       // The largest speed change requiring no acceleration
                  min_travel_feedrate_mm_s;
 
-    #if HAS_ABL
+    #if OLDSCHOOL_ABL
       static bool abl_enabled;              // Flag that bed leveling is enabled
       #if ABL_PLANAR
         static matrix_3x3 bed_level_matrix; // Transform to compensate for bed level

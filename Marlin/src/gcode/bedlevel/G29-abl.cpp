@@ -20,6 +20,26 @@
  *
  */
 
+/**
+ * G29-abl.cpp - Auto Bed Leveling
+ */
+
+#include "../../inc/MarlinConfig.h"
+
+#if OLDSCHOOL_ABL
+
+#include "../gcode.h"
+#include "../../feature/bedlevel/bedlevel.h"
+#include "../../module/motion.h"
+#include "../../module/planner.h"
+#include "../../module/stepper.h"
+#include "../../module/probe.h"
+#include "../../core/serial.h"
+
+#if ENABLED(LCD_BED_LEVELING) && ENABLED(PROBE_MANUALLY)
+  #include "../../lcd/ultralcd.h"
+#endif
+
 #if ABL_GRID
   #if ENABLED(PROBE_Y_FIRST)
     #define PR_OUTER_VAR xCount
@@ -106,7 +126,7 @@
  *     There's no extra effect if you have a fixed Z probe.
  *
  */
-void gcode_G29() {
+void GcodeSuite::G29() {
 
   // G29 Q is also available if debugging
   #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -944,3 +964,5 @@ void gcode_G29() {
   if (planner.abl_enabled)
     SYNC_PLAN_POSITION_KINEMATIC();
 }
+
+#endif // OLDSCHOOL_ABL

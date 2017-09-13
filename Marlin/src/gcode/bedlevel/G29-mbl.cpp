@@ -20,23 +20,28 @@
  *
  */
 
+/**
+ * G29-mbl.cpp - Mesh Bed Leveling
+ */
+
+#include "../../inc/MarlinConfig.h"
+
+#if ENABLED(MESH_BED_LEVELING)
+
+#include "../../feature/bedlevel/bedlevel.h"
+
+#include "../gcode.h"
 #include "../queue.h"
+#include "../../module/motion.h"
+#include "../../module/stepper.h"
+#include "../../core/serial.h"
 
 // Save 130 bytes with non-duplication of PSTR
 void echo_not_entered() { SERIAL_PROTOCOLLNPGM(" not entered."); }
 
-void mbl_mesh_report() {
-  SERIAL_PROTOCOLLNPGM("Num X,Y: " STRINGIFY(GRID_MAX_POINTS_X) "," STRINGIFY(GRID_MAX_POINTS_Y));
-  SERIAL_PROTOCOLPGM("Z offset: "); SERIAL_PROTOCOL_F(mbl.z_offset, 5);
-  SERIAL_PROTOCOLLNPGM("\nMeasured points:");
-  print_2d_array(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y, 5,
-    [](const uint8_t ix, const uint8_t iy) { return mbl.z_values[ix][iy]; }
-  );
-}
-
 void mesh_probing_done() {
   mbl.set_has_mesh(true);
-  home_all_axes();
+  gcode.home_all_axes();
   set_bed_leveling_enabled(true);
   #if ENABLED(MESH_G28_REST_ORIGIN)
     current_position[Z_AXIS] = LOGICAL_Z_POSITION(Z_MIN_POS);
@@ -67,7 +72,7 @@ void mesh_probing_done() {
  *  v Y-axis  1-n
  *
  */
-void gcode_G29() {
+void GcodeSuite::G29() {
 
   static int mbl_probe_index = -1;
   #if HAS_SOFTWARE_ENDSTOPS
@@ -197,3 +202,5 @@ void gcode_G29() {
 
   report_current_position();
 }
+
+#endif // MESH_BED_LEVELING

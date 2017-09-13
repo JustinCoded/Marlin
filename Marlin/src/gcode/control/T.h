@@ -20,7 +20,7 @@
  *
  */
 
-#include "tool_change.h"
+#include "../../module/tool_change.h"
 
 /**
  * T0-T3: Switch tool, usually switching extruders

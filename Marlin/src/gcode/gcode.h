@@ -297,6 +297,8 @@ public:
     #define KEEPALIVE_STATE(n) NOOP
   #endif
 
+  static FORCE_INLINE void home_all_axes() { G28(true); }
+
 private:
 
   static void G0_G1(
@@ -420,7 +422,7 @@ private:
     static void M48();
   #endif
 
-  #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(UBL_G26_MESH_VALIDATION)
+  #if ENABLED(UBL_G26_MESH_VALIDATION)
     static void M49();
   #endif
 

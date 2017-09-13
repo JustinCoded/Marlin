@@ -38,6 +38,8 @@
 // PrintCounter or Stopwatch
 #include "module/printcounter.h"
 
+void stop();
+
 void idle(
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     bool no_stepper_sleep = false  // pass true to keep steppers from disabling on timeout
@@ -192,14 +194,6 @@ extern volatile bool wait_for_heatup;
   extern volatile bool wait_for_user;
 #endif
 
-// Hotend Offsets
-#if HOTENDS > 1
-  extern float hotend_offset[XYZ][HOTENDS];
-#endif
-
-// Software Endstops
-extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
-
 #if HAS_WORKSPACE_OFFSET || ENABLED(DUAL_X_CARRIAGE)
   void update_software_endstops(const AxisEnum axis);
 #endif
@@ -209,29 +203,18 @@ extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
   linear_fit* lsf_linear_fit(double x[], double y[], double z[], const int);
 #endif
 
-#if HAS_LEVELING
-  bool leveling_is_valid();
-  bool leveling_is_active();
-  void set_bed_leveling_enabled(const bool enable=true);
-  void reset_bed_level();
-#endif
-
-#if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-  void set_z_fade_height(const float zfh);
-#endif
-
 #if ENABLED(Z_DUAL_ENDSTOPS)
   extern float z_endstop_adj;
 #endif
 
-#if HAS_BED_PROBE
-  extern float zprobe_zoffset;
-  void refresh_zprobe_zoffset(const bool no_babystep=false);
-  #define DEPLOY_PROBE() set_probe_deployed(true)
-  #define STOW_PROBE() set_probe_deployed(false)
-#else
-  #define DEPLOY_PROBE()
-  #define STOW_PROBE()
+#if HAS_SERVOS
+  #include "HAL/servo.h"
+  extern HAL_SERVO_LIB servo[NUM_SERVOS];
+  #define MOVE_SERVO(I, P) servo[I].move(P)
+  #if HAS_Z_SERVO_ENDSTOP
+    #define DEPLOY_Z_SERVO() MOVE_SERVO(Z_ENDSTOP_SERVO_NR, z_servo_angle[0])
+    #define STOW_Z_SERVO() MOVE_SERVO(Z_ENDSTOP_SERVO_NR, z_servo_angle[1])
+  #endif
 #endif
 
 #if FAN_COUNT > 0
@@ -260,24 +243,23 @@ extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
 
 #if ENABLED(MIXING_EXTRUDER)
   extern float mixing_factor[MIXING_STEPPERS];
+  #if MIXING_VIRTUAL_TOOLS > 1
+    extern float mixing_virtual_tool_mix[MIXING_VIRTUAL_TOOLS][MIXING_STEPPERS];
+  #endif
 #endif
 
 void calculate_volumetric_multipliers();
 
-/**
- * Blocking movement and shorthand functions
- */
-void do_blocking_move_to(const float &x, const float &y, const float &z, const float &fr_mm_s=0.0);
-void do_blocking_move_to_x(const float &x, const float &fr_mm_s=0.0);
-void do_blocking_move_to_z(const float &z, const float &fr_mm_s=0.0);
-void do_blocking_move_to_xy(const float &x, const float &y, const float &fr_mm_s=0.0);
-
-#if ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED) || HAS_PROBING_PROCEDURE || HOTENDS > 1 || ENABLED(NOZZLE_CLEAN_FEATURE) || ENABLED(NOZZLE_PARK_FEATURE)
-  bool axis_unhomed_error(const bool x=true, const bool y=true, const bool z=true);
-#endif
-
 void set_axis_is_at_home(const AxisEnum axis);
-void homeaxis(const AxisEnum axis);
-#define HOMEAXIS(LETTER) homeaxis(LETTER##_AXIS)
+
+// Buzzer - Use a BEEPER_PIN if specified
+#if ENABLED(LCD_USE_I2C_BUZZER)
+  // will be defined in ultralcd.h
+#elif PIN_EXISTS(BEEPER)
+  #include "libs/buzzer.h"
+  #define BUZZ(d,f) buzzer.tone(d, f)
+#else
+  #define BUZZ(d,f) NOOP
+#endif
 
 #endif // MARLIN_H
